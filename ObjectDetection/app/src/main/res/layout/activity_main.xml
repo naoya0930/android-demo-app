@@ -87,4 +87,15 @@
         app:layout_constraintStart_toEndOf="@+id/selectButton"
         app:layout_constraintTop_toTopOf="@+id/selectButton" />
 
+    <Button
+        android:id="@+id/selectModelButton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="@string/model"
+        android:textAllCaps="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/detectButton"
+        app:layout_constraintTop_toTopOf="@+id/detectButton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -43,6 +44,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements Runnable {
@@ -55,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements Runnable {
     private ProgressBar mProgressBar;
     private Bitmap mBitmap = null;
     private Module mModule = null;
+    // モデルの名前を入力
+    private CharSequence mPtlFileName = "yolov5s.torchscript.ptl";
     private float mImgScaleX, mImgScaleY, mIvScaleX, mIvScaleY, mStartX, mStartY;
 
     public static String assetFilePath(Context context, String assetName) throws IOException {
@@ -119,7 +123,36 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                 }
             }
         });
+        // モデル選択ダイアログ表示機能
+        final Button buttonSelectModel = findViewById(R.id.selectModelButton);
+        buttonSelectModel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mResultView.setVisibility(View.INVISIBLE);
+                AssetManager assetManager = getResources().getAssets();
+                String[] assetList =null;
+                try {
+                    assetList = assetManager.list("");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                List<CharSequence> modelFileList =new ArrayList<>();
+                    for (String modelName : assetList)
+                        if (modelName.endsWith(".ptl"))
+                            modelFileList.add(modelName);
 
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Select Model");
+                CharSequence[] options = modelFileList.toArray(new CharSequence[modelFileList.size()]);
+                builder.setSingleChoiceItems(options, 0, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        mPtlFileName = options[whichButton];
+                        updateModel();
+                    }
+                });
+                builder.show();
+            }
+        });
 
         final Button buttonSelect = findViewById(R.id.selectButton);
         buttonSelect.setOnClickListener(new View.OnClickListener() {
@@ -181,7 +214,25 @@ public class MainActivity extends AppCompatActivity implements Runnable {
         });
 
         try {
-            mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), "yolov5s.torchscript.ptl"));
+            mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), mPtlFileName.toString()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open("classes.txt")));
+            String line;
+            List<String> classes = new ArrayList<>();
+            while ((line = br.readLine()) != null) {
+                classes.add(line);
+            }
+            PrePostProcessor.mClasses = new String[classes.size()];
+            classes.toArray(PrePostProcessor.mClasses);
+        } catch (IOException e) {
+            Log.e("Object Detection", "Error reading assets", e);
+            finish();
+        }
+    }
+    // モデルの更新
+    // Notice: Do not execute this function every frame because it takes time to execute.
+    private void updateModel(){
+        try {
+            mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), mPtlFileName.toString()));
             BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open("classes.txt")));
             String line;
             List<String> classes = new ArrayList<>();
