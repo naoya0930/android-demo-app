@@ -1,5 +1,6 @@
 package org.pytorch.demo.objectdetection;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -86,7 +87,9 @@ public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetec
     protected AnalysisResult analyzeImage(ImageProxy image, int rotationDegrees) {
         try {
             if (mModule == null) {
-                mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), "yolov5s.torchscript.ptl"));
+                Intent intent = getIntent();
+                CharSequence mPtlFileName = intent.getCharSequenceExtra("KEY_MODEL_NAME_CHARSEQUENCE");
+                mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), mPtlFileName.toString()));
             }
         } catch (IOException e) {
             Log.e("Object Detection", "Error reading assets", e);

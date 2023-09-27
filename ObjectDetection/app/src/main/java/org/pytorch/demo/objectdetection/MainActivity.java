@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements Runnable {
     private ProgressBar mProgressBar;
     private Bitmap mBitmap = null;
     private Module mModule = null;
-    // モデルの名前を入力
     private CharSequence mPtlFileName = "yolov5s.torchscript.ptl";
     private float mImgScaleX, mImgScaleY, mIvScaleX, mIvScaleY, mStartX, mStartY;
 
@@ -123,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                 }
             }
         });
-        // モデル選択ダイアログ表示機能
+
         final Button buttonSelectModel = findViewById(R.id.selectModelButton);
         buttonSelectModel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -187,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
         buttonLive.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
               final Intent intent = new Intent(MainActivity.this, ObjectDetectionActivity.class);
+              intent.putExtra("KEY_MODEL_NAME_CHARSEQUENCE",mPtlFileName);
               startActivity(intent);
             }
         });
@@ -212,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                 thread.start();
             }
         });
-
         try {
             mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), mPtlFileName.toString()));
             BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open("classes.txt")));
@@ -256,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                     if (resultCode == RESULT_OK && data != null) {
                         mBitmap = (Bitmap) data.getExtras().get("data");
                         Matrix matrix = new Matrix();
-                        matrix.postRotate(90.0f);
+                        matrix.postRotate(0.0f);
                         mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
                         mImageView.setImageBitmap(mBitmap);
                     }
@@ -274,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                                 String picturePath = cursor.getString(columnIndex);
                                 mBitmap = BitmapFactory.decodeFile(picturePath);
                                 Matrix matrix = new Matrix();
-                                matrix.postRotate(90.0f);
+                                matrix.postRotate(0.0f);
                                 mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
                                 mImageView.setImageBitmap(mBitmap);
                                 cursor.close();
