@@ -93,7 +93,7 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
                 mLastAnalysisResultTime = SystemClock.elapsedRealtime();
                 runOnUiThread(() -> {
                     // Run Time Measurement
-                    Log.i("Analyze_UI",""+mLastAnalysisResultTime);
+                    // Log.i("Analyze_UI",""+mLastAnalysisResultTime);
                     applyToUiAnalyzeImageResult(result);});
             }
         });
