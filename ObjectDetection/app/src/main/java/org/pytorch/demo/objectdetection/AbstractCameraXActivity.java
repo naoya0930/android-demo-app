@@ -10,6 +10,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.Size;
 import android.view.TextureView;
 import android.widget.Toast;
@@ -83,14 +84,17 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
                 .build();
         final ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
         imageAnalysis.setAnalyzer((image, rotationDegrees) -> {
-            if (SystemClock.elapsedRealtime() - mLastAnalysisResultTime < 500) {
+            if (SystemClock.elapsedRealtime() - mLastAnalysisResultTime < 0) {
                 return;
             }
 
             final R result = analyzeImage(image, rotationDegrees);
             if (result != null) {
                 mLastAnalysisResultTime = SystemClock.elapsedRealtime();
-                runOnUiThread(() -> applyToUiAnalyzeImageResult(result));
+                runOnUiThread(() -> {
+                    // Run Time Measurement
+                    // Log.i("Analyze_UI",""+mLastAnalysisResultTime);
+                    applyToUiAnalyzeImageResult(result);});
             }
         });
 
